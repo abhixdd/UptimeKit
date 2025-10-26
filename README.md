@@ -71,15 +71,6 @@ Open browser: `http://localhost:5173`
 3. Monitor status updates automatically every minute
 4. View charts, pause, edit, or delete monitors from the menu
 
-## Future Enhancements 🚀
-
-- Email/SMS notifications for downtime
-- Uptime reports and statistics
-- User authentication
-- Webhook integrations
-- Custom check intervals
-- Docker support
-
 ## Contributing 🤝
 
 Contributions are welcome! Please feel free to submit a Pull Request.
