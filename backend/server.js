@@ -5,9 +5,12 @@ const axios = require('axios');
 const { getAllMonitors, addMonitor, deleteMonitor, updateMonitorStatus, getUptimePercentage, getUptimeChartData, getResponseTimeChartData, getMonitorHistory, updateMonitor, toggleMonitorPause, getMonitorUptimeChartData, getMonitorResponseTimeChartData } = require('./database');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
 app.get('/api/monitors', (req, res) => {
