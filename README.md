@@ -24,23 +24,6 @@ A simple uptime monitoring dashboard to keep track of your websites and APIs. Ge
 - 🟡 **Degraded** - Response time 1000-5000ms
 - 🔴 **Down** - Service unavailable or response time > 5000ms
 
-## Tech Stack 🛠️
-
-### Frontend
-- **React** - Modern UI framework
-- **React Query** - Data fetching and caching
-- **Tailwind CSS** - Styling framework
-- **Recharts** - Beautiful charts and graphs
-- **shadcn/ui** - Pre-built UI components
-- **Lucide React** - Icon library
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **SQLite** - Lightweight database
-- **Axios** - HTTP client
-- **node-cron** - Task scheduler
-
 ## Getting Started 🎯
 
 ### Prerequisites
