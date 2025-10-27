@@ -1,7 +1,4 @@
 const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const fs = require('fs');
-
 const dbPath = 'uptimekit.db';
 
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -85,7 +82,6 @@ function deleteMonitor(id, callback) {
 
 // Update monitor status and response time
 function updateMonitorStatus(id, status, responseTime, errorMessage = null, callback) {
-  // Handle both old (4 params) and new (5 params) call signatures
   if (typeof errorMessage === 'function') {
     callback = errorMessage;
     errorMessage = null;
