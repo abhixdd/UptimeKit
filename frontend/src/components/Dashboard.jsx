@@ -271,7 +271,9 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                   Start monitoring your websites and services by adding your first monitor.
                 </p>
-                <AddMonitorDialog />
+                <div className="flex justify-center">
+                  <AddMonitorDialog />
+                </div>
               </CardContent>
             </Card>
           </div>

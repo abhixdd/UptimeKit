@@ -1,0 +1,26 @@
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - backend-data:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_BACKEND_URL=http://localhost:3000
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  backend-data:

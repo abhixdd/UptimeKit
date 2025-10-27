@@ -41,17 +41,56 @@ cd UptimeKit
 npm run install:all
 ```
 
-### Running the Application
+### Running the Application (development)
 
 ```bash
 npm run dev
 ```
 
-This runs both backend (port 3000) and frontend (port 5173) concurrently.
+This runs both the backend (port 3000) and the frontend dev server (port 5173) concurrently for local development.
 
 Open browser: `http://localhost:5173`
 
 **Optional:** Create a `.env` file in the `backend` folder (copy from `.env.example`) to customize the port or other settings.
+
+### Docker (quick start)
+
+You can run the full stack with Docker Compose. This builds containerized versions of the backend and frontend (served by nginx) and starts everything together. Perfect for production deployments!
+
+**Prerequisites:**
+
+- Docker & Docker Compose installed
+
+**Build and start:**
+
+```bash
+docker-compose up --build
+```
+
+**After startup, access:**
+
+- Frontend: `localhost:5173`
+- Backend API: `localhost:3000`
+
+**How it works:**
+
+- **Backend container**: Node.js Alpine image running Express server on port 3000
+- **Frontend container**: Multi-stage build with Node/Vite for building, nginx for serving on port 5173
+- **Database**: SQLite database persists in a Docker volume (`backend-data`)
+- **Networking**: Services communicate via Docker internal network
+
+**To stop:**
+
+```bash
+docker-compose down
+```
+
+**To remove all data and start fresh:**
+
+```bash
+docker-compose down -v
+```
+
 
 ## API Endpoints 📡
 

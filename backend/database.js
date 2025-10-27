@@ -1,9 +1,13 @@
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const fs = require('fs');
 
-// Open database connection
-const db = new sqlite3.Database('./uptimekit.db', (err) => {
+const dbPath = 'uptimekit.db';
+
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err.message);
+    console.error('Current working directory:', process.cwd());
   } else {
     console.log('Connected to the SQLite database.');
   }
