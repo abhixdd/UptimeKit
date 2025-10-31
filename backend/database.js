@@ -19,6 +19,7 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       url TEXT NOT NULL UNIQUE,
+      type TEXT DEFAULT 'http',
       status TEXT DEFAULT 'unknown',
       response_time INTEGER DEFAULT 0,
       last_checked DATETIME DEFAULT (datetime('now', 'localtime')),
@@ -37,6 +38,24 @@ db.serialize(() => {
   `, (err) => {
     if (err && err.code !== 'SQLITE_ERROR') {
       console.error('Error adding paused column:', err.message);
+    }
+  });
+
+  db.run(`
+    ALTER TABLE monitors ADD COLUMN type TEXT DEFAULT 'http'
+  `, (err) => {
+    if (err && err.code !== 'SQLITE_ERROR') {
+      console.error('Error adding type column:', err.message);
+    }
+  });
+
+  db.run(`
+    UPDATE monitors SET type = 'http' WHERE type IS NULL
+  `, (err) => {
+    if (err) {
+      console.error('Error updating monitor types:', err.message);
+    } else {
+      console.log('Monitor types updated.');
     }
   });
 
@@ -65,9 +84,9 @@ function getAllMonitors(callback) {
 }
 
 // Add a new monitor
-function addMonitor(name, url, callback) {
-  const stmt = db.prepare('INSERT INTO monitors (name, url) VALUES (?, ?)');
-  stmt.run([name, url], function(err) {
+function addMonitor(name, url, type = 'http', callback) {
+  const stmt = db.prepare('INSERT INTO monitors (name, url, type) VALUES (?, ?, ?)');
+  stmt.run([name, url, type], function(err) {
     callback(err, this.lastID);
   });
   stmt.finalize();

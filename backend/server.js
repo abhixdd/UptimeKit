@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cron = require('node-cron');
 const axios = require('axios');
+const dns = require('dns').promises;
 const { getAllMonitors, addMonitor, deleteMonitor, updateMonitorStatus, getUptimePercentage, getUptimeChartData, getResponseTimeChartData, getMonitorHistory, updateMonitor, toggleMonitorPause, getMonitorUptimeChartData, getMonitorResponseTimeChartData } = require('./database');
 
 const app = express();
@@ -19,22 +20,35 @@ app.get('/api/monitors', (req, res) => {
       console.error('Error fetching monitors:', err.message);
       return res.status(500).json({ error: 'Failed to fetch monitors' });
     }
-    res.json(rows);
+    const monitorsWithType = rows.map(monitor => ({
+      ...monitor,
+      type: monitor.type || 'http'
+    }));
+    res.json(monitorsWithType);
   });
 });
 
 app.post('/api/monitors', (req, res) => {
-  const { name, url } = req.body;
+  const { name, url, type = 'http' } = req.body;
   if (!name || !url) {
     return res.status(400).json({ error: 'Name and URL are required' });
   }
 
-  addMonitor(name, url, (err, id) => {
+  addMonitor(name, url, type, (err, id) => {
     if (err) {
       console.error('Error adding monitor:', err.message);
       return res.status(500).json({ error: 'Failed to add monitor' });
     }
-    res.status(201).json({ id, name, url, message: 'Monitor added successfully' });
+    res.status(201).json({ 
+      id, 
+      name, 
+      url, 
+      type: type || 'http', 
+      status: 'unknown',
+      response_time: 0,
+      paused: 0,
+      message: 'Monitor added successfully' 
+    });
   });
 });
 
@@ -140,6 +154,44 @@ app.get('/api/monitors/:id/chart/response-time', (req, res) => {
   });
 });
 
+// Check DNS resolution
+async function checkDns(monitor) {
+  const start = Date.now();
+  try {
+    // Extract hostname from URL
+    let hostname = monitor.url;
+    if (hostname.startsWith('http://') || hostname.startsWith('https://')) {
+      hostname = new URL(monitor.url).hostname;
+    }
+
+    await dns.resolve4(hostname);
+    const responseTime = Date.now() - start;
+
+    let status = 'down';
+    if (responseTime < 1000) {
+      status = 'up';
+    } else if (responseTime < 5000) {
+      status = 'slow';
+    } else {
+      status = 'down';
+    }
+
+    updateMonitorStatus(monitor.id, status, responseTime, null, (err) => {
+      if (err) {
+        console.error(`Error updating DNS monitor ${monitor.id}:`, err.message);
+      }
+    });
+  } catch (error) {
+    const responseTime = Date.now() - start;
+    const errorMessage = error.message || 'DNS resolution failed';
+    updateMonitorStatus(monitor.id, 'down', responseTime, errorMessage, (err) => {
+      if (err) {
+        console.error(`Error updating DNS monitor ${monitor.id}:`, err.message);
+      }
+    });
+  }
+}
+
 // Check monitor status
 async function checkUptime(monitor) {
   const start = Date.now();
@@ -184,7 +236,11 @@ cron.schedule('* * * * *', () => {
     }
     monitors.forEach(monitor => {
       if (!monitor.paused) {
-        checkUptime(monitor);
+        if (monitor.type === 'dns') {
+          checkDns(monitor);
+        } else {
+          checkUptime(monitor);
+        }
       }
     });
   });

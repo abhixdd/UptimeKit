@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, XCircle, Clock, ExternalLink, Trash2, Activity, MoreVertical, Pause, Play, Edit, TrendingUp, History } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Clock, ExternalLink, Trash2, Activity, MoreVertical, Pause, Play, Edit, TrendingUp, History, Globe, Network } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -125,6 +125,19 @@ const MonitorCard = ({ monitor, onDelete }) => {
             <div className="flex items-center gap-2 mb-2">
               <Activity className="h-4 w-4 text-primary flex-shrink-0" />
               <h3 className="font-semibold text-lg truncate">{truncateText(monitor.name)}</h3>
+              <Badge variant="outline" className="flex-shrink-0 gap-1">
+                {(monitor.type === 'dns' || monitor.type?.toLowerCase() === 'dns') ? (
+                  <>
+                    <Network className="h-3 w-3" />
+                    DNS
+                  </>
+                ) : (
+                  <>
+                    <Globe className="h-3 w-3" />
+                    HTTP
+                  </>
+                )}
+              </Badge>
               {monitor.paused === 1 && (
                 <Badge variant="secondary" className="bg-amber-500/20 text-amber-700 dark:text-amber-300 ml-auto flex-shrink-0">Paused</Badge>
               )}

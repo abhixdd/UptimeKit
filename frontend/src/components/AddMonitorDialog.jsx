@@ -14,10 +14,11 @@ import {
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Plus, Globe, Type, Zap, X } from 'lucide-react';
+import { Plus, Globe, Type, Zap, X, Network, Server } from 'lucide-react';
 
 const AddMonitorDialog = () => {
   const [open, setOpen] = useState(false);
+  const [monitorType, setMonitorType] = useState('http');
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: {
@@ -27,11 +28,12 @@ const AddMonitorDialog = () => {
   });
 
   const addMonitorMutation = useMutation({
-    mutationFn: (data) => axios.post('/api/monitors', data),
+    mutationFn: (data) => axios.post('/api/monitors', { ...data, type: monitorType }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['monitors'] });
       setOpen(false);
       reset();
+      setMonitorType('http');
     },
     onError: (error) => {
       console.error('Error adding monitor:', error);
@@ -69,13 +71,46 @@ const AddMonitorDialog = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 px-6 py-6">
           <div className="space-y-3">
+            <Label className="flex items-center gap-2 font-semibold">
+              <Server className="h-4 w-4 text-primary" />
+              Monitor Type
+            </Label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setMonitorType('http')}
+                className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                  monitorType === 'http'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    : 'border-muted hover:border-primary'
+                }`}
+              >
+                <Globe className="h-4 w-4" />
+                <span className="font-medium">HTTP/HTTPS</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMonitorType('dns')}
+                className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                  monitorType === 'dns'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    : 'border-muted hover:border-primary'
+                }`}
+              >
+                <Network className="h-4 w-4" />
+                <span className="font-medium">DNS</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
             <Label htmlFor="name" className="flex items-center gap-2 font-semibold">
               <Type className="h-4 w-4 text-primary" />
               Name
             </Label>
             <Input
               id="name"
-              placeholder="My API Server"
+              placeholder={monitorType === 'dns' ? 'My DNS Server' : 'My API Server'}
               className="h-11 border-2 border-muted hover:border-primary transition-colors"
               {...register('name', { 
                 required: 'Please give your monitor a name',
@@ -94,20 +129,22 @@ const AddMonitorDialog = () => {
           
           <div className="space-y-3">
             <Label htmlFor="url" className="flex items-center gap-2 font-semibold">
-              <Globe className="h-4 w-4 text-primary" />
-              URL to Monitor
+              {monitorType === 'dns' ? <Network className="h-4 w-4 text-primary" /> : <Globe className="h-4 w-4 text-primary" />}
+              {monitorType === 'dns' ? 'Domain to Monitor' : 'URL to Monitor'}
             </Label>
             <Input
               id="url"
-              type="url"
-              placeholder="https://example.com"
+              type={monitorType === 'dns' ? 'text' : 'url'}
+              placeholder={monitorType === 'dns' ? 'example.com or https://example.com' : 'https://example.com'}
               className="h-11 border-2 border-muted hover:border-primary transition-colors font-mono text-sm"
               {...register('url', { 
-                required: 'Enter the URL you want to monitor',
-                pattern: {
-                  value: /^https?:\/\/.+\..+/,
-                  message: 'Invalid URL - must start with http:// or https://'
-                }
+                required: monitorType === 'dns' ? 'Enter the domain name you want to monitor' : 'Enter the URL you want to monitor',
+                pattern: monitorType === 'dns' 
+                  ? undefined
+                  : {
+                      value: /^https?:\/\/.+\..+/,
+                      message: 'Invalid URL - must start with http:// or https://'
+                    }
               })}
             />
             {errors.url && (
@@ -116,7 +153,10 @@ const AddMonitorDialog = () => {
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              🔍 Checked every minute • Response time tracked • Auto status updates
+              {monitorType === 'dns' 
+                ? '🔍 DNS resolution checked every minute • Resolution time tracked • Auto status updates'
+                : '🔍 Checked every minute • Response time tracked • Auto status updates'
+              }
             </p>
           </div>
 
@@ -127,6 +167,7 @@ const AddMonitorDialog = () => {
               onClick={() => {
                 setOpen(false);
                 reset();
+                setMonitorType('http');
               }}
               className="px-6 h-10 border-2 border-muted-foreground/30 text-muted-foreground hover:bg-muted hover:text-foreground hover:border-muted-foreground/50 transition-all rounded-lg"
             >
