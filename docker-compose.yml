@@ -8,6 +8,7 @@ services:
     environment:
       - PORT=3000
       - NODE_ENV=production
+      - TZ=UTC
 
   frontend:
     build: ./frontend
@@ -17,6 +18,7 @@ services:
       - "5173:80"
     environment:
       - VITE_BACKEND_URL=http://localhost:3000
+      - TZ=UTC
 
 networks:
   default:

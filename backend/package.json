@@ -13,6 +13,7 @@
     "dns": "^0.2.2",
     "express": "^4.18.2",
     "node-cron": "^3.0.3",
+    "ping": "^1.0.0",
     "sqlite3": "^5.1.6"
   },
   "devDependencies": {

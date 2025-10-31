@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, XCircle, Clock, ExternalLink, Trash2, Activity, MoreVertical, Pause, Play, Edit, TrendingUp, History, Globe, Network } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Clock, ExternalLink, Trash2, Activity, MoreVertical, Pause, Play, Edit, TrendingUp, History, Globe, Network, Wifi } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -11,6 +11,7 @@ import DeleteMonitorDialog from './DeleteMonitorDialog';
 import { formatDistanceToNow } from 'date-fns';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { parseUTC } from '../lib/timezone';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
@@ -101,14 +102,6 @@ const MonitorCard = ({ monitor, onDelete }) => {
     return 'text-red-600 dark:text-red-400';
   };
 
-  const formatLastChecked = (dateString) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
-    } catch (error) {
-      return 'Unknown';
-    }
-  };
-
   const truncateText = (text, maxWords = 8) => {
     const words = text.split(/\s+/);
     if (words.length > maxWords) {
@@ -130,6 +123,11 @@ const MonitorCard = ({ monitor, onDelete }) => {
                   <>
                     <Network className="h-3 w-3" />
                     DNS
+                  </>
+                ) : (monitor.type === 'icmp' || monitor.type?.toLowerCase() === 'icmp') ? (
+                  <>
+                    <Wifi className="h-3 w-3" />
+                    ICMP
                   </>
                 ) : (
                   <>
@@ -245,7 +243,7 @@ const MonitorCard = ({ monitor, onDelete }) => {
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground font-medium">Last Check</p>
             <p className="text-sm font-semibold text-foreground">
-              {formatDistanceToNow(new Date(monitor.last_checked), { addSuffix: true })}
+              {formatDistanceToNow(parseUTC(monitor.last_checked), { addSuffix: true })}
             </p>
           </div>
         </div>

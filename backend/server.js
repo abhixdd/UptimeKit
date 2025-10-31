@@ -3,6 +3,7 @@ const cors = require('cors');
 const cron = require('node-cron');
 const axios = require('axios');
 const dns = require('dns').promises;
+const ping = require('ping');
 const { getAllMonitors, addMonitor, deleteMonitor, updateMonitorStatus, getUptimePercentage, getUptimeChartData, getResponseTimeChartData, getMonitorHistory, updateMonitor, toggleMonitorPause, getMonitorUptimeChartData, getMonitorResponseTimeChartData } = require('./database');
 
 const app = express();
@@ -37,6 +38,9 @@ app.post('/api/monitors', (req, res) => {
   addMonitor(name, url, type, (err, id) => {
     if (err) {
       console.error('Error adding monitor:', err.message);
+      if (err.message && err.message.includes('UNIQUE constraint failed')) {
+        return res.status(400).json({ error: 'A monitor with this URL and type already exists' });
+      }
       return res.status(500).json({ error: 'Failed to add monitor' });
     }
     res.status(201).json({ 
@@ -96,13 +100,16 @@ app.get('/api/charts/response-time', (req, res) => {
 
 app.put('/api/monitors/:id', (req, res) => {
   const { id } = req.params;
-  const { name, url } = req.body;
+  const { name, url, type = 'http' } = req.body;
   if (!name || !url) {
     return res.status(400).json({ error: 'Name and URL are required' });
   }
-  updateMonitor(id, name, url, (err) => {
+  updateMonitor(id, name, url, type, (err) => {
     if (err) {
       console.error('Error updating monitor:', err.message);
+      if (err.message && err.message.includes('UNIQUE constraint failed')) {
+        return res.status(400).json({ error: 'A monitor with this URL and type already exists' });
+      }
       return res.status(500).json({ error: 'Failed to update monitor' });
     }
     res.json({ message: 'Monitor updated successfully' });
@@ -192,6 +199,49 @@ async function checkDns(monitor) {
   }
 }
 
+// Check ICMP ping
+async function checkPing(monitor) {
+  const start = Date.now();
+  try {
+    let hostname = monitor.url;
+    if (hostname.startsWith('http://') || hostname.startsWith('https://')) {
+      hostname = new URL(monitor.url).hostname;
+    }
+
+    const result = await ping.promise.probe(hostname, {
+      timeout: 2
+    });
+
+    const responseTime = Date.now() - start;
+
+    let status = 'down';
+    if (result.alive) {
+      const pingTime = typeof result.time === 'number' ? result.time : responseTime;
+      if (pingTime < 1000) {
+        status = 'up';
+      } else if (pingTime < 5000) {
+        status = 'slow';
+      } else {
+        status = 'down';
+      }
+    }
+
+    updateMonitorStatus(monitor.id, status, responseTime, null, (err) => {
+      if (err) {
+        console.error(`Error updating PING monitor ${monitor.id}:`, err.message);
+      }
+    });
+  } catch (error) {
+    const responseTime = Date.now() - start;
+    const errorMessage = error.message || 'Ping failed';
+    updateMonitorStatus(monitor.id, 'down', responseTime, errorMessage, (err) => {
+      if (err) {
+        console.error(`Error updating PING monitor ${monitor.id}:`, err.message);
+      }
+    });
+  }
+}
+
 // Check monitor status
 async function checkUptime(monitor) {
   const start = Date.now();
@@ -238,6 +288,8 @@ cron.schedule('* * * * *', () => {
       if (!monitor.paused) {
         if (monitor.type === 'dns') {
           checkDns(monitor);
+        } else if (monitor.type === 'icmp') {
+          checkPing(monitor);
         } else {
           checkUptime(monitor);
         }

@@ -18,12 +18,13 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS monitors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      url TEXT NOT NULL UNIQUE,
+      url TEXT NOT NULL,
       type TEXT DEFAULT 'http',
       status TEXT DEFAULT 'unknown',
       response_time INTEGER DEFAULT 0,
-      last_checked DATETIME DEFAULT (datetime('now', 'localtime')),
-      paused INTEGER DEFAULT 0
+      last_checked DATETIME DEFAULT (datetime('now')),
+      paused INTEGER DEFAULT 0,
+      UNIQUE(url, type)
     )
   `, (err) => {
     if (err) {
@@ -106,13 +107,13 @@ function updateMonitorStatus(id, status, responseTime, errorMessage = null, call
     errorMessage = null;
   }
   
-  const stmt = db.prepare('UPDATE monitors SET status = ?, response_time = ?, last_checked = datetime("now", "localtime") WHERE id = ?');
+  const stmt = db.prepare('UPDATE monitors SET status = ?, response_time = ?, last_checked = datetime("now") WHERE id = ?');
   stmt.run([status, responseTime, id], (err) => {
     if (err) {
       callback(err);
       return;
     }
-    const historyStmt = db.prepare('INSERT INTO monitor_history (monitor_id, status, response_time, error_message, checked_at) VALUES (?, ?, ?, ?, datetime("now", "localtime"))');
+    const historyStmt = db.prepare('INSERT INTO monitor_history (monitor_id, status, response_time, error_message, checked_at) VALUES (?, ?, ?, ?, datetime("now"))');
     historyStmt.run([id, status, responseTime, errorMessage], callback);
     historyStmt.finalize();
   });
@@ -213,14 +214,12 @@ function getMonitorResponseTimeChartData(id, callback) {
   db.all(query, [id], callback);
 }
 
-// Update monitor name and URL
-function updateMonitor(id, name, url, callback) {
-  const stmt = db.prepare('UPDATE monitors SET name = ?, url = ? WHERE id = ?');
-  stmt.run([name, url, id], callback);
+function updateMonitor(id, name, url, type = 'http', callback) {
+  const stmt = db.prepare('UPDATE monitors SET name = ?, url = ?, type = ? WHERE id = ?');
+  stmt.run([name, url, type, id], callback);
   stmt.finalize();
 }
 
-// Pause or resume monitoring for a monitor
 function toggleMonitorPause(id, paused, callback) {
   const stmt = db.prepare('UPDATE monitors SET paused = ? WHERE id = ?');
   stmt.run([paused ? 1 : 0, id], callback);

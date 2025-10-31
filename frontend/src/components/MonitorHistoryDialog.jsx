@@ -6,6 +6,7 @@ import { Card, CardContent } from './ui/card';
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow, formatDate } from 'date-fns';
 import axios from 'axios';
+import { parseUTC } from '../lib/timezone';
 
 const getStatusBadge = (status) => {
   switch (status) {
@@ -108,10 +109,10 @@ const MonitorHistoryDialog = ({ open, onOpenChange, monitor }) => {
                         </Badge>
                         <div className="flex-1">
                           <p className="text-sm font-medium">
-                            {formatDistanceToNow(new Date(entry.checked_at), { addSuffix: true })}
+                            {formatDistanceToNow(parseUTC(entry.checked_at), { addSuffix: true })}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(entry.checked_at).toLocaleString()}
+                            {parseUTC(entry.checked_at).toLocaleString()}
                           </p>
                         </div>
                       </div>

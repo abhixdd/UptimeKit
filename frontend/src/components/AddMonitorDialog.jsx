@@ -14,7 +14,7 @@ import {
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Plus, Globe, Type, Zap, X, Network, Server } from 'lucide-react';
+import { Plus, Globe, Type, Zap, X, Network, Server, Wifi } from 'lucide-react';
 
 const AddMonitorDialog = () => {
   const [open, setOpen] = useState(false);
@@ -100,6 +100,18 @@ const AddMonitorDialog = () => {
                 <Network className="h-4 w-4" />
                 <span className="font-medium">DNS</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setMonitorType('icmp')}
+                className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                  monitorType === 'icmp'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    : 'border-muted hover:border-primary'
+                }`}
+              >
+                <Wifi className="h-4 w-4" />
+                <span className="font-medium">ICMP Ping</span>
+              </button>
             </div>
           </div>
 
@@ -110,7 +122,7 @@ const AddMonitorDialog = () => {
             </Label>
             <Input
               id="name"
-              placeholder={monitorType === 'dns' ? 'My DNS Server' : 'My API Server'}
+              placeholder={monitorType === 'dns' ? 'My DNS Server' : monitorType === 'icmp' ? 'My Ping Monitor' : 'My API Server'}
               className="h-11 border-2 border-muted hover:border-primary transition-colors"
               {...register('name', { 
                 required: 'Please give your monitor a name',
@@ -129,22 +141,22 @@ const AddMonitorDialog = () => {
           
           <div className="space-y-3">
             <Label htmlFor="url" className="flex items-center gap-2 font-semibold">
-              {monitorType === 'dns' ? <Network className="h-4 w-4 text-primary" /> : <Globe className="h-4 w-4 text-primary" />}
-              {monitorType === 'dns' ? 'Domain to Monitor' : 'URL to Monitor'}
+              {monitorType === 'dns' ? <Network className="h-4 w-4 text-primary" /> : monitorType === 'icmp' ? <Wifi className="h-4 w-4 text-primary" /> : <Globe className="h-4 w-4 text-primary" />}
+              {monitorType === 'dns' ? 'Domain to Monitor' : monitorType === 'icmp' ? 'Host to Ping' : 'URL to Monitor'}
             </Label>
             <Input
               id="url"
-              type={monitorType === 'dns' ? 'text' : 'url'}
-              placeholder={monitorType === 'dns' ? 'example.com or https://example.com' : 'https://example.com'}
+              type={monitorType === 'http' ? 'url' : 'text'}
+              placeholder={monitorType === 'dns' ? 'example.com or https://example.com' : monitorType === 'icmp' ? '8.8.8.8 or example.com' : 'https://example.com'}
               className="h-11 border-2 border-muted hover:border-primary transition-colors font-mono text-sm"
               {...register('url', { 
-                required: monitorType === 'dns' ? 'Enter the domain name you want to monitor' : 'Enter the URL you want to monitor',
-                pattern: monitorType === 'dns' 
-                  ? undefined
-                  : {
+                required: monitorType === 'dns' ? 'Enter the domain name you want to monitor' : monitorType === 'icmp' ? 'Enter the host or IP address to ping' : 'Enter the URL you want to monitor',
+                pattern: monitorType === 'http' 
+                  ? {
                       value: /^https?:\/\/.+\..+/,
                       message: 'Invalid URL - must start with http:// or https://'
                     }
+                  : undefined
               })}
             />
             {errors.url && (
@@ -155,6 +167,8 @@ const AddMonitorDialog = () => {
             <p className="text-xs text-muted-foreground">
               {monitorType === 'dns' 
                 ? '🔍 DNS resolution checked every minute • Resolution time tracked • Auto status updates'
+                : monitorType === 'icmp'
+                ? '📡 ICMP ping checked every minute • Response time tracked • Auto status updates'
                 : '🔍 Checked every minute • Response time tracked • Auto status updates'
               }
             </p>
