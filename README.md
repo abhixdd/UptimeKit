@@ -9,6 +9,7 @@ A simple uptime monitoring dashboard to keep track of your websites and APIs. Ge
 ## Features ✨
 
 - Real-time monitoring - checks every minute
+- Multiple monitor types: **HTTP/HTTPS**, **DNS**, **ICMP Ping**
 - Individual charts for each monitor
 - Track response times (avg, min, max)
 - Beautiful dark/light mode
@@ -106,9 +107,13 @@ docker-compose down -v
 ## Usage 📖
 
 1. Click "Add Monitor" to add a new website/API to monitor
-2. Enter a name and URL (e.g., https://example.com)
-3. Monitor status updates automatically every minute
-4. View charts, pause, edit, or delete monitors from the menu
+2. Choose monitor type:
+   - **HTTP/HTTPS**: Check website availability and response time
+   - **DNS**: Verify DNS resolution
+   - **ICMP Ping**: Test connectivity via ping
+3. Enter a name and URL (e.g., https://example.com)
+4. Monitor status updates automatically every minute
+5. View charts, pause, edit, or delete monitors from the menu
 
 ## Contributing 🤝
 
