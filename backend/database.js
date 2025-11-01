@@ -188,7 +188,7 @@ function getMonitorHistory(id, callback) {
 function getMonitorUptimeChartData(id, callback) {
   const query = `
     SELECT 
-      strftime('%H:%M', checked_at) as time,
+      checked_at as time,
       AVG(CASE WHEN status = 'up' THEN 100 ELSE 0 END) as uptime
     FROM monitor_history
     WHERE monitor_id = ? 
@@ -203,7 +203,7 @@ function getMonitorUptimeChartData(id, callback) {
 function getMonitorResponseTimeChartData(id, callback) {
   const query = `
     SELECT 
-      strftime('%H:%M', checked_at) as time,
+      checked_at as time,
       AVG(response_time) as avgResponse
     FROM monitor_history
     WHERE monitor_id = ? 

@@ -8,6 +8,7 @@ import { Progress } from './ui/progress';
 import MonitorHistoryDialog from './MonitorHistoryDialog';
 import EditMonitorDialog from './EditMonitorDialog';
 import DeleteMonitorDialog from './DeleteMonitorDialog';
+import DowntimeDialog from './DowntimeDialog';
 import { formatDistanceToNow } from 'date-fns';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -54,6 +55,7 @@ const MonitorCard = ({ monitor, onDelete }) => {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [downtimeOpen, setDowntimeOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -73,13 +75,23 @@ const MonitorCard = ({ monitor, onDelete }) => {
 
   const { data: uptimeChartData = [] } = useQuery({
     queryKey: ['monitor-uptime-chart', monitor.id],
-    queryFn: () => axios.get(`/api/monitors/${monitor.id}/chart/uptime`).then(res => res.data),
+    queryFn: () => axios.get(`/api/monitors/${monitor.id}/chart/uptime`).then(res => 
+      res.data.map(item => ({
+        ...item,
+        time: parseUTC(item.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      }))
+    ),
     refetchInterval: 60000,
   });
 
   const { data: responseTimeChartData = [] } = useQuery({
     queryKey: ['monitor-response-time-chart', monitor.id],
-    queryFn: () => axios.get(`/api/monitors/${monitor.id}/chart/response-time`).then(res => res.data),
+    queryFn: () => axios.get(`/api/monitors/${monitor.id}/chart/response-time`).then(res => 
+      res.data.map(item => ({
+        ...item,
+        time: parseUTC(item.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      }))
+    ),
     refetchInterval: 60000,
   });
 
@@ -172,6 +184,10 @@ const MonitorCard = ({ monitor, onDelete }) => {
               <DropdownMenuItem className="cursor-pointer" onClick={() => setHistoryOpen(true)}>
                 <History className="h-4 w-4 mr-2" />
                 View History
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => setDowntimeOpen(true)}>
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                View Downtime
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => setEditOpen(true)}>
                 <Edit className="h-4 w-4 mr-2" />
@@ -335,6 +351,7 @@ const MonitorCard = ({ monitor, onDelete }) => {
       <EditMonitorDialog open={editOpen} onOpenChange={setEditOpen} monitor={monitor} />
       <MonitorHistoryDialog open={historyOpen} onOpenChange={setHistoryOpen} monitor={monitor} />
       <DeleteMonitorDialog open={deleteOpen} onOpenChange={setDeleteOpen} monitor={monitor} />
+      <DowntimeDialog monitorId={monitor.id} isOpen={downtimeOpen} onClose={setDowntimeOpen} />
     </Card>
   );
 };

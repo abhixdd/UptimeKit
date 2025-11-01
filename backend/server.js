@@ -298,6 +298,48 @@ cron.schedule('* * * * *', () => {
   });
 });
 
+app.get('/api/monitors/:id/downtime', (req, res) => {
+  const { id } = req.params;
+  getMonitorHistory(id, (err, history) => {
+    if (err) {
+      console.error('Error fetching monitor history:', err.message);
+      return res.status(500).json({ error: 'Failed to fetch history' });
+    }
+    
+    if (!history || history.length === 0) {
+      return res.json({ downtimes: [], message: 'No history available' });
+    }
+
+    const sortedHistory = [...history].reverse();
+    const downtimes = [];
+    let currentDownStart = null;
+
+    for (let i = 0; i < sortedHistory.length; i++) {
+      const entry = sortedHistory[i];
+      if (entry.status === 'down') {
+        if (!currentDownStart) {
+          currentDownStart = entry.checked_at;
+        }
+      } else if ((entry.status === 'up' || entry.status === 'slow') && currentDownStart) {
+        const downEnd = entry.checked_at;
+        const duration = new Date(downEnd) - new Date(currentDownStart);
+        downtimes.push({
+          start: currentDownStart,
+          end: downEnd,
+          duration: Math.floor(duration / 1000)
+        });
+        currentDownStart = null;
+      }
+    }
+    
+    const recentDowntimes = downtimes.reverse().slice(0, 30);
+    res.json({
+      downtimes: recentDowntimes,
+      total: downtimes.length
+    });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`UptimeKit backend server running on port ${PORT}`);
 });

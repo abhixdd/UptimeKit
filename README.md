@@ -103,6 +103,7 @@ docker-compose down -v
 - `GET /api/monitors/:id/chart/uptime` - Uptime chart data
 - `GET /api/monitors/:id/chart/response-time` - Response time chart data
 - `GET /api/monitors/:id/history` - Last 30 checks
+- `GET /api/monitors/:id/downtime` - Latest downtime period info
 
 ## Usage 📖
 
