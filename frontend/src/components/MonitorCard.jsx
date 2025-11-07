@@ -128,6 +128,14 @@ const MonitorCard = ({ monitor, onDelete }) => {
         <div className="flex items-start justify-between w-full">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
+              {monitor.favicon && monitor.type === 'http' && (
+                <img 
+                  src={monitor.favicon} 
+                  alt="Favicon" 
+                  className="h-6 w-6 rounded-sm flex-shrink-0" 
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              )}
               <Activity className="h-4 w-4 text-primary flex-shrink-0" />
               <h3 className="font-semibold text-lg truncate">{truncateText(monitor.name)}</h3>
               <Badge variant="outline" className="flex-shrink-0 gap-1">

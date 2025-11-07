@@ -51,6 +51,14 @@ db.serialize(() => {
   });
 
   db.run(`
+    ALTER TABLE monitors ADD COLUMN favicon TEXT
+  `, (err) => {
+    if (err && err.code !== 'SQLITE_ERROR') {
+      console.error('Error adding favicon column:', err.message);
+    }
+  });
+
+  db.run(`
     UPDATE monitors SET type = 'http' WHERE type IS NULL
   `, (err) => {
     if (err) {
@@ -86,7 +94,7 @@ function getAllMonitors(callback) {
 
 // Add a new monitor
 function addMonitor(name, url, type = 'http', callback) {
-  const stmt = db.prepare('INSERT INTO monitors (name, url, type) VALUES (?, ?, ?)');
+  const stmt = db.prepare('INSERT INTO monitors (name, url, type, favicon) VALUES (?, ?, ?, NULL)');
   stmt.run([name, url, type], function(err) {
     callback(err, this.lastID);
   });
@@ -220,6 +228,12 @@ function updateMonitor(id, name, url, type = 'http', callback) {
   stmt.finalize();
 }
 
+function updateMonitorFavicon(id, favicon, callback) {
+  const stmt = db.prepare('UPDATE monitors SET favicon = ? WHERE id = ?');
+  stmt.run([favicon, id], callback);
+  stmt.finalize();
+}
+
 function toggleMonitorPause(id, paused, callback) {
   const stmt = db.prepare('UPDATE monitors SET paused = ? WHERE id = ?');
   stmt.run([paused ? 1 : 0, id], callback);
@@ -239,5 +253,6 @@ module.exports = {
   updateMonitor,
   toggleMonitorPause,
   getMonitorUptimeChartData,
-  getMonitorResponseTimeChartData
+  getMonitorResponseTimeChartData,
+  updateMonitorFavicon
 };

@@ -4,7 +4,7 @@ const cron = require('node-cron');
 const axios = require('axios');
 const dns = require('dns').promises;
 const ping = require('ping');
-const { getAllMonitors, addMonitor, deleteMonitor, updateMonitorStatus, getUptimePercentage, getUptimeChartData, getResponseTimeChartData, getMonitorHistory, updateMonitor, toggleMonitorPause, getMonitorUptimeChartData, getMonitorResponseTimeChartData } = require('./database');
+const { getAllMonitors, addMonitor, deleteMonitor, updateMonitorStatus, getUptimePercentage, getUptimeChartData, getResponseTimeChartData, getMonitorHistory, updateMonitor, toggleMonitorPause, getMonitorUptimeChartData, getMonitorResponseTimeChartData, updateMonitorFavicon } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +15,39 @@ app.use(cors({
 }));
 app.use(express.json());
 
+async function fetchFavicon(url) {
+  try {
+    const response = await axios.get(url, { timeout: 5000 });
+    const html = response.data;
+
+    const iconMatch = html.match(/<link[^>]*rel=["'](?:icon|shortcut icon)["'][^>]*href=["']([^"']+)["'][^>]*>/i);
+    if (iconMatch) {
+      const iconUrl = iconMatch[1];
+      if (iconUrl.startsWith('//')) {
+        return 'https:' + iconUrl;
+      } else if (iconUrl.startsWith('/')) {
+        const baseUrl = new URL(url);
+        return `${baseUrl.protocol}//${baseUrl.host}${iconUrl}`;
+      } else if (!iconUrl.startsWith('http')) {
+        const baseUrl = new URL(url);
+        return `${baseUrl.protocol}//${baseUrl.host}/${iconUrl}`;
+      }
+      return iconUrl;
+    }
+    const baseUrl = new URL(url);
+    const faviconUrl = `${baseUrl.protocol}//${baseUrl.host}/favicon.ico`;
+    try {
+      await axios.head(faviconUrl, { timeout: 2000 });
+      return faviconUrl;
+    } catch {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching favicon:', error.message);
+    return null;
+  }
+}
+
 app.get('/api/monitors', (req, res) => {
   getAllMonitors((err, rows) => {
     if (err) {
@@ -23,13 +56,14 @@ app.get('/api/monitors', (req, res) => {
     }
     const monitorsWithType = rows.map(monitor => ({
       ...monitor,
-      type: monitor.type || 'http'
+      type: monitor.type || 'http',
+      favicon: monitor.favicon || null
     }));
     res.json(monitorsWithType);
   });
 });
 
-app.post('/api/monitors', (req, res) => {
+app.post('/api/monitors', async (req, res) => {
   const { name, url, type = 'http' } = req.body;
   if (!name || !url) {
     return res.status(400).json({ error: 'Name and URL are required' });
@@ -43,6 +77,21 @@ app.post('/api/monitors', (req, res) => {
       }
       return res.status(500).json({ error: 'Failed to add monitor' });
     }
+    
+    if (type === 'http') {
+      fetchFavicon(url).then(favicon => {
+        if (favicon) {
+          updateMonitorFavicon(id, favicon, (updateErr) => {
+            if (updateErr) {
+              console.error('Error updating favicon:', updateErr.message);
+            }
+          });
+        }
+      }).catch(err => {
+        console.error('Error fetching favicon:', err.message);
+      });
+    }
+    
     res.status(201).json({ 
       id, 
       name, 
@@ -51,6 +100,7 @@ app.post('/api/monitors', (req, res) => {
       status: 'unknown',
       response_time: 0,
       paused: 0,
+      favicon: null, 
       message: 'Monitor added successfully' 
     });
   });
