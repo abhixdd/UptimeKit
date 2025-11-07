@@ -28,6 +28,7 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
     setIsRefreshing(true);
     try {
       await refetch();
+      queryClient.invalidateQueries({ queryKey: ['monitor-uptime'] });
     } finally {
       setTimeout(() => setIsRefreshing(false), 500);
     }

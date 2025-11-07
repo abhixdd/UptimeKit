@@ -10,7 +10,7 @@ import EditMonitorDialog from './EditMonitorDialog';
 import DeleteMonitorDialog from './DeleteMonitorDialog';
 import DowntimeDialog from './DowntimeDialog';
 import { formatDistanceToNow } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { parseUTC } from '../lib/timezone';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -50,28 +50,19 @@ const getStatusInfo = (status) => {
 };
 
 const MonitorCard = ({ monitor, onDelete }) => {
-  const [uptimePercentage, setUptimePercentage] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [downtimeOpen, setDowntimeOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchUptime = async () => {
-      try {
-        const response = await axios.get(`/api/monitors/${monitor.id}/uptime`);
-        setUptimePercentage(response.data.uptime);
-      } catch (error) {
-        console.error('Error fetching uptime:', error);
-        setUptimePercentage(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUptime();
-  }, [monitor.id]);
+  const { data: uptimeData, isLoading: uptimeLoading } = useQuery({
+    queryKey: ['monitor-uptime', monitor.id],
+    queryFn: () => axios.get(`/api/monitors/${monitor.id}/uptime`).then(res => res.data),
+    refetchInterval: 30000,
+  });
+
+  const uptimePercentage = uptimeData?.uptime;
 
   const { data: uptimeChartData = [] } = useQuery({
     queryKey: ['monitor-uptime-chart', monitor.id],
@@ -241,7 +232,7 @@ const MonitorCard = ({ monitor, onDelete }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground font-medium">Uptime</span>
-            {loading ? (
+            {uptimeLoading ? (
               <span className="text-xs text-muted-foreground animate-pulse">Loading...</span>
             ) : uptimePercentage !== null ? (
               <span className={`font-bold ${uptimePercentage >= 99 ? 'text-emerald-600 dark:text-emerald-400' : uptimePercentage >= 95 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
