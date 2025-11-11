@@ -27,11 +27,57 @@ A simple uptime monitoring dashboard to keep track of your websites and APIs. Ge
 
 ## Getting Started 🎯
 
-### Prerequisites
+### Docker Setup (Recommended) 🐳
+
+The easiest way to get UptimeKit running is with Docker and Docker Compose!
+
+**Prerequisites:**
+- Docker & Docker Compose installed
+
+**Quick Start:**
+
+```bash
+# Clone the repository
+git clone https://github.com/abhixdd/UptimeKit.git
+cd UptimeKit
+
+# Build and start the full stack
+docker-compose up --build
+```
+
+**Access the application:**
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
+
+**Stop the application:**
+
+```bash
+docker-compose down
+```
+
+**Remove all data and start fresh:**
+
+```bash
+docker-compose down -v
+```
+
+**How Docker setup works:**
+- **Backend container**: Node.js Alpine image running Express server on port 3000
+- **Frontend container**: Multi-stage build with Node/Vite for building, nginx for serving on port 5173
+- **Database**: SQLite database persists in a Docker volume (`backend-data`)
+- **Networking**: Services communicate via Docker internal network
+
+---
+
+### Node.js Setup
+
+For running UptimeKit with Node.js (without Docker), follow these steps.
+
+**Prerequisites:**
 - Node.js (v14 or higher)
 - npm or yarn
 
-### Installation
+**Installation:**
 
 ```bash
 # Clone the repository
@@ -42,56 +88,19 @@ cd UptimeKit
 npm run install:all
 ```
 
-### Running the Application (development)
+**Running the Application:**
 
 ```bash
 npm run dev
 ```
 
-This runs both the backend (port 3000) and the frontend dev server (port 5173) concurrently for local development.
+This runs both the backend (port 3000) and the frontend dev server concurrently (port 5173).
 
 Open browser: `http://localhost:5173`
 
 **Optional:** Create a `.env` file in the `backend` folder (copy from `.env.example`) to customize the port or other settings.
 
-### Docker (quick start)
-
-You can run the full stack with Docker Compose. This builds containerized versions of the backend and frontend (served by nginx) and starts everything together. Perfect for production deployments!
-
-**Prerequisites:**
-
-- Docker & Docker Compose installed
-
-**Build and start:**
-
-```bash
-docker-compose up --build
-```
-
-**After startup, access:**
-
-- Frontend: `localhost:5173`
-- Backend API: `localhost:3000`
-
-**How it works:**
-
-- **Backend container**: Node.js Alpine image running Express server on port 3000
-- **Frontend container**: Multi-stage build with Node/Vite for building, nginx for serving on port 5173
-- **Database**: SQLite database persists in a Docker volume (`backend-data`)
-- **Networking**: Services communicate via Docker internal network
-
-**To stop:**
-
-```bash
-docker-compose down
-```
-
-**To remove all data and start fresh:**
-
-```bash
-docker-compose down -v
-```
-
+---
 
 ## API Endpoints 📡
 
