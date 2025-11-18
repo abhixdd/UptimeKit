@@ -50,6 +50,7 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
     }
   };
 
+  // Aggregate statistics
   const stats = {
     total: monitors.length,
     up: monitors.filter(m => m.status === 'up').length,
@@ -59,6 +60,33 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
       ? Math.round(monitors.reduce((acc, m) => acc + m.response_time, 0) / monitors.length)
       : 0,
   };
+
+  stats.issues = stats.down + stats.slow;
+
+  const computePercentile = (arr, p) => {
+    if (!arr || arr.length === 0) return 0;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const idx = (p / 100) * (sorted.length - 1);
+    const lower = Math.floor(idx);
+    const upper = Math.ceil(idx);
+    if (lower === upper) return sorted[lower];
+    const weight = idx - lower;
+    return Math.round(sorted[lower] * (1 - weight) + sorted[upper] * weight);
+  };
+
+  const responseTimes = monitors.map(m => typeof m.response_time === 'number' ? m.response_time : 0).filter(x => x > 0);
+  stats.p95Response = computePercentile(responseTimes, 95) || 0;
+  const uptimePercent = monitors.length > 0 ? (stats.up / stats.total) * 100 : 0;
+  const issuesPercent = monitors.length > 0 ? (stats.issues / stats.total) * 100 : 0;
+  const maxLatency = 2000;
+  const latencyNormalized = Math.max(0, Math.min(1, 1 - (stats.p95Response / maxLatency)));
+  const weights = { uptime: 0.5, issues: 0.3, latency: 0.2 };
+  const healthRaw = monitors.length > 0 ? (
+    (uptimePercent / 100) * weights.uptime
+    + (1 - (issuesPercent / 100)) * weights.issues
+    + latencyNormalized * weights.latency
+  ) : null;
+  stats.healthScore = healthRaw === null ? null : Math.round(healthRaw * 100);
 
   const uptime = monitors.length > 0 ? ((stats.up / stats.total) * 100).toFixed(1) : 0;
 
@@ -251,8 +279,28 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Avg Response</p>
-                    <p className="text-3xl font-bold">{stats.avgResponseTime}<span className="text-sm ml-1">ms</span></p>
+                    <p className="text-xs text-muted-foreground mb-1">Health Score</p>
+                    {stats.healthScore === null ? (
+                      <p className="text-3xl font-bold">—</p>
+                    ) : (
+                      <div className="flex items-center justify-center gap-1">
+                        <p className={`text-3xl font-bold ${stats.healthScore >= 90 ? 'text-emerald-600 dark:text-emerald-400' : stats.healthScore >= 75 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>{stats.healthScore}</p>
+                        <p className="text-sm ml-1 align-baseline">/100</p>
+                      </div>
+                    )}
+                    <div className="mt-2">
+                      <Progress value={stats.healthScore || 0} className="h-1.5" />
+                    </div>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">{stats.healthScore === null ? 'No monitors' : `${uptimePercent.toFixed(1)}% uptime · ${stats.p95Response}ms P95 · ${stats.issues} issues`}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Health Score = 50% uptime + 30% issue count + 20% latency (P95)
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
