@@ -10,9 +10,10 @@ A simple uptime monitoring dashboard to keep track of your websites and APIs. Ge
 
 - Real-time monitoring - checks every minute
 - Multiple monitor types: **HTTP/HTTPS**, **DNS**, **ICMP Ping**
+- Drag & Drop Reordering - Organize your monitors exactly how you want
 - Individual charts for each monitor
 - Track response times (avg, min, max)
-- Beautiful dark/light mode
+- Beautiful dark/light mode with **multiple themes** (Midnight, Forest, Cosmic, Claude)
 - Mobile responsive - works everywhere
 - Edit or delete monitors anytime
 - Pause monitoring without losing data
