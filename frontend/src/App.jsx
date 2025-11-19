@@ -7,21 +7,28 @@ import './App.css';
 const queryClient = new QueryClient();
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    const root = document.documentElement;
+    root.classList.remove('dark', 'theme-midnight', 'theme-forest', 'theme-cosmic', 'theme-claude');
+    
+    if (theme !== 'light') {
+      root.classList.add('dark');
+      if (theme !== 'dark') {
+        root.classList.add(theme);
+      }
     }
-  }, [darkMode]);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="min-h-screen bg-background text-foreground">
-          <Dashboard darkMode={darkMode} setDarkMode={setDarkMode} />
+          <Dashboard theme={theme} setTheme={setTheme} />
         </div>
       </TooltipProvider>
     </QueryClientProvider>

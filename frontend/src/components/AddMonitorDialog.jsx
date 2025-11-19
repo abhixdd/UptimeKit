@@ -49,7 +49,7 @@ const AddMonitorDialog = () => {
       <DialogTrigger asChild>
         <div className="md:w-auto w-auto">
           <Button 
-            className="md:size-auto md:gap-2 md:px-6 md:py-2 md:h-10 h-10 w-10 md:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex md:flex items-center justify-center"
+            className="md:size-auto md:gap-2 md:px-6 md:py-2 md:h-10 h-10 w-10 md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all flex md:flex items-center justify-center"
           >
             <Plus className="h-5 w-5" />
             <span className="font-semibold hidden md:inline ml-2">Add Monitor</span>
@@ -57,13 +57,13 @@ const AddMonitorDialog = () => {
         </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] gap-0 p-0 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+        <div className="bg-primary px-6 py-4">
           <DialogHeader className="border-0">
-            <DialogTitle className="text-2xl text-white flex items-center gap-2">
+            <DialogTitle className="text-2xl text-primary-foreground flex items-center gap-2">
               <Zap className="h-6 w-6" />
               Add Monitor
             </DialogTitle>
-            <DialogDescription className="text-blue-100 mt-1">
+            <DialogDescription className="text-primary-foreground/80 mt-1">
               Start monitoring your website's uptime and performance instantly
             </DialogDescription>
           </DialogHeader>
@@ -81,7 +81,7 @@ const AddMonitorDialog = () => {
                 onClick={() => setMonitorType('http')}
                 className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
                   monitorType === 'http'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    ? 'border-primary bg-primary/10'
                     : 'border-muted hover:border-primary'
                 }`}
               >
@@ -93,7 +93,7 @@ const AddMonitorDialog = () => {
                 onClick={() => setMonitorType('dns')}
                 className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
                   monitorType === 'dns'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    ? 'border-primary bg-primary/10'
                     : 'border-muted hover:border-primary'
                 }`}
               >
@@ -105,7 +105,7 @@ const AddMonitorDialog = () => {
                 onClick={() => setMonitorType('icmp')}
                 className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
                   monitorType === 'icmp'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    ? 'border-primary bg-primary/10'
                     : 'border-muted hover:border-primary'
                 }`}
               >
@@ -191,11 +191,11 @@ const AddMonitorDialog = () => {
             <Button 
               type="submit" 
               disabled={addMonitorMutation.isPending}
-              className="px-8 h-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all font-semibold text-white rounded-lg"
+              className="px-8 h-10 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all font-semibold text-primary-foreground rounded-lg"
             >
               {addMonitorMutation.isPending ? (
                 <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
                   Adding...
                 </>
               ) : (
