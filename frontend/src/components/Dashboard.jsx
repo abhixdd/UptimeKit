@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createSwapy } from 'swapy';
 import MonitorCard from './MonitorCard';
 import AddMonitorDialog from './AddMonitorDialog';
 import { Button } from './ui/button';
@@ -17,6 +18,8 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const containerRef = useRef(null);
+  const swapyRef = useRef(null);
 
   const { data: monitors = [], isLoading, error, refetch } = useQuery({
     queryKey: ['monitors'],
@@ -104,6 +107,91 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
   };
 
   const filteredMonitors = getFilteredMonitors();
+
+
+  const getSavedOrder = () => {
+    try {
+      const raw = localStorage.getItem('monitorOrder') || '[]';
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      const deduped = Array.from(new Set(parsed.map(x => Number(x)))).map(Number);
+      return deduped;
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const applySavedOrder = (monitorsList) => {
+    const saved = getSavedOrder();
+    if (!Array.isArray(saved) || saved.length === 0) return monitorsList;
+    const savedSet = new Set(saved.map(s => Number(s)));
+    const ordered = [];
+    saved.forEach(id => {
+      const found = monitorsList.find(m => Number(m.id) === Number(id));
+      if (found) ordered.push(found);
+    });
+    monitorsList.forEach(m => {
+      if (!savedSet.has(Number(m.id))) ordered.push(m);
+    });
+    return ordered;
+  };
+
+  const orderedMonitors = applySavedOrder(filteredMonitors);
+
+  // Helper to update saved order
+  const updateSavedOrderForSwap = (swappedArray) => {
+    const currentIds = monitors.map(m => Number(m.id));
+    try {
+      if (!Array.isArray(swappedArray)) return;
+      const saved = getSavedOrder();
+      const dedupedSwapped = Array.from(new Set(swappedArray.map(Number))).map(Number);
+      const newOrder = [
+        ...dedupedSwapped,
+        ...saved.filter(id => !dedupedSwapped.includes(id)),
+        ...currentIds.filter(id => !dedupedSwapped.includes(id) && !saved.includes(id)),
+      ];
+      localStorage.setItem('monitorOrder', JSON.stringify(newOrder));
+    } catch (e) {
+      localStorage.setItem('monitorOrder', JSON.stringify(swappedArray));
+    }
+  };
+
+  useEffect(() => {
+    if (isLoading || monitors.length === 0) return;
+    const currentIds = monitors.map(m => Number(m.id));
+    const saved = getSavedOrder();
+    const newSaved = [
+      ...saved.filter(id => currentIds.includes(id)),
+      ...currentIds.filter(id => !saved.includes(id))
+    ];
+    const deduped = Array.from(new Set(newSaved));
+    localStorage.setItem('monitorOrder', JSON.stringify(deduped));
+  }, [monitors, isLoading]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const hasSlot = containerRef.current.querySelector('[data-swapy-slot]');
+    const hasItem = containerRef.current.querySelector('[data-swapy-item]');
+    if (!hasSlot || !hasItem) return;
+    swapyRef.current?.destroy?.();
+    let rafId;
+    rafId = requestAnimationFrame(() => {
+      try {
+        swapyRef.current = createSwapy(containerRef.current, { animation: 'dynamic' });
+        swapyRef.current.onSwap((event) => {
+          const arr = (event?.newSlotItemMap?.asArray || []).map(x => Number(x.item));
+          if (arr && arr.length) updateSavedOrderForSwap(arr);
+        });
+      } catch (e) {
+        console.error('Swapy init error:', e);
+      }
+    });
+    return () => {
+      cancelAnimationFrame(rafId);
+      swapyRef.current?.destroy?.();
+      swapyRef.current = null;
+    };
+  }, [containerRef, activeTab, monitors.length]);
 
   if (isLoading) {
     return (
@@ -361,13 +449,17 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
-                  {filteredMonitors.map((monitor) => (
-                    <MonitorCard 
-                      key={monitor.id} 
-                      monitor={monitor} 
-                      onDelete={handleDelete}
-                    />
+                <div ref={containerRef} className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6" data-swapy-container>
+                  {orderedMonitors.map((monitor) => (
+                    <div key={monitor.id} data-swapy-slot={String(monitor.id)}>
+                      <div data-swapy-item={String(monitor.id)}>
+                        <MonitorCard 
+                          key={monitor.id} 
+                          monitor={monitor} 
+                          onDelete={handleDelete}
+                        />
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
