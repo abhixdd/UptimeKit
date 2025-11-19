@@ -49,6 +49,23 @@
   }
 }
 
+/* Swapy handle visibility and drag styling */
+[data-swapy-item] .drag-handle {
+  opacity: 0.6;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  cursor: grab;
+}
+
+[data-swapy-item]:hover .drag-handle {
+  opacity: 0.9;
+}
+
+[data-swapy-item][data-swapy-dragging] .drag-handle {
+  opacity: 1;
+  transform: translateY(-2px);
+  cursor: grabbing;
+}
+
 @layer base {
   * {
     @apply border-border;

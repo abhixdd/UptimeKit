@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, XCircle, Clock, ExternalLink, Trash2, Activity, MoreVertical, Pause, Play, Edit, TrendingUp, History, Globe, Network, Wifi } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Clock, ExternalLink, Trash2, Activity, MoreVertical, Pause, Play, Edit, TrendingUp, History, Globe, Network, Wifi, GripVertical } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -169,7 +169,16 @@ const MonitorCard = ({ monitor, onDelete }) => {
             </Tooltip>
           </div>
           
-          <DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span data-swapy-handle className="drag-handle text-muted-foreground opacity-60 hover:opacity-100 transition" aria-hidden>
+                  <GripVertical className="h-4 w-4" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Drag to reorder</TooltipContent>
+            </Tooltip>
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -215,7 +224,8 @@ const MonitorCard = ({ monitor, onDelete }) => {
                 Delete Monitor
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+            </DropdownMenu>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-3">
