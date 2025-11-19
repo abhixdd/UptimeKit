@@ -5,15 +5,22 @@ import { createSwapy } from 'swapy';
 import MonitorCard from './MonitorCard';
 import AddMonitorDialog from './AddMonitorDialog';
 import { Button } from './ui/button';
-import { Switch } from './ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Progress } from './ui/progress';
-import { Activity, Moon, Sun, RefreshCw, TrendingUp, TrendingDown, CheckCircle2, XCircle, AlertTriangle, Menu, X } from 'lucide-react';
+import { Activity, RefreshCw, TrendingUp, TrendingDown, CheckCircle2, XCircle, AlertTriangle, Menu, X, Palette } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 
-const Dashboard = ({ darkMode, setDarkMode }) => {
+const Dashboard = ({ theme, setTheme }) => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -259,11 +266,35 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
                 <TooltipContent>Refresh monitors</TooltipContent>
               </Tooltip>
 
-              <div className="flex items-center gap-2">
-                <Sun className="h-4 w-4" />
-                <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-                <Moon className="h-4 w-4" />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Theme</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setTheme('light')}>
+                    Light
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme('dark')}>
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme('theme-midnight')}>
+                    Midnight
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme('theme-forest')}>
+                    Forest
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme('theme-cosmic')}>
+                    Cosmic
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme('theme-claude')}>
+                    Claude
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <AddMonitorDialog />
             </div>
@@ -302,12 +333,19 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
 
           {mobileMenuOpen && (
             <div className="md:hidden mt-4 pt-4 border-t">
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Sun className="h-4 w-4" />
-                  <span className="text-sm font-medium">Dark Mode</span>
+              <div className="p-3 bg-muted rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Palette className="h-4 w-4" />
+                  <span className="text-sm font-medium">Theme</span>
                 </div>
-                <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant={theme === 'light' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('light')}>Light</Button>
+                  <Button variant={theme === 'dark' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('dark')}>Dark</Button>
+                  <Button variant={theme === 'theme-midnight' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('theme-midnight')}>Midnight</Button>
+                  <Button variant={theme === 'theme-forest' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('theme-forest')}>Forest</Button>
+                  <Button variant={theme === 'theme-cosmic' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('theme-cosmic')}>Cosmic</Button>
+                  <Button variant={theme === 'theme-claude' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('theme-claude')}>Claude</Button>
+                </div>
               </div>
             </div>
           )}

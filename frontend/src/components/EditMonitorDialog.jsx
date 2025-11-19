@@ -80,7 +80,7 @@ const EditMonitorDialog = ({ open, onOpenChange, monitor }) => {
                 onClick={() => setMonitorType('http')}
                 className={`flex-1 p-2 rounded-lg border-2 transition-all flex items-center justify-center gap-2 text-sm ${
                   monitorType === 'http'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    ? 'border-primary bg-primary/10'
                     : 'border-muted hover:border-primary'
                 }`}
               >
@@ -92,7 +92,7 @@ const EditMonitorDialog = ({ open, onOpenChange, monitor }) => {
                 onClick={() => setMonitorType('dns')}
                 className={`flex-1 p-2 rounded-lg border-2 transition-all flex items-center justify-center gap-2 text-sm ${
                   monitorType === 'dns'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    ? 'border-primary bg-primary/10'
                     : 'border-muted hover:border-primary'
                 }`}
               >
@@ -104,7 +104,7 @@ const EditMonitorDialog = ({ open, onOpenChange, monitor }) => {
                 onClick={() => setMonitorType('icmp')}
                 className={`flex-1 p-2 rounded-lg border-2 transition-all flex items-center justify-center gap-2 text-sm ${
                   monitorType === 'icmp'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                    ? 'border-primary bg-primary/10'
                     : 'border-muted hover:border-primary'
                 }`}
               >
@@ -160,11 +160,11 @@ const EditMonitorDialog = ({ open, onOpenChange, monitor }) => {
             <Button
               type="submit"
               disabled={updateMutation.isPending}
-              className="px-8 py-3 h-10 text-base font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-emerald-500/50"
+              className="px-8 py-3 h-10 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl"
             >
               {updateMutation.isPending ? (
                 <span className="flex items-center gap-2">
-                  <div className="h-5 w-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="h-5 w-5 border-3 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                   Updating...
                 </span>
               ) : (

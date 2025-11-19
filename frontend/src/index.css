@@ -47,6 +47,94 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
   }
+
+  .theme-midnight {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 216 34% 17%;
+  }
+
+  .theme-forest {
+    --background: 150 40% 6%;
+    --foreground: 150 20% 90%;
+    --card: 150 40% 6%;
+    --card-foreground: 150 20% 90%;
+    --popover: 150 40% 6%;
+    --popover-foreground: 150 20% 90%;
+    --primary: 142 70% 50%;
+    --primary-foreground: 144 70% 10%;
+    --secondary: 150 20% 15%;
+    --secondary-foreground: 150 20% 90%;
+    --muted: 150 20% 15%;
+    --muted-foreground: 150 10% 60%;
+    --accent: 150 20% 20%;
+    --accent-foreground: 150 20% 90%;
+    --destructive: 0 60% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 150 20% 20%;
+    --input: 150 20% 20%;
+    --ring: 142 70% 50%;
+  }
+
+  .theme-cosmic {
+    --background: 260 50% 5%;
+    --foreground: 210 40% 98%;
+    --card: 260 50% 5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 260 50% 5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 280 80% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 260 40% 15%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 260 40% 15%;
+    --muted-foreground: 260 20% 65%;
+    --accent: 260 40% 20%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 260 40% 20%;
+    --input: 260 40% 20%;
+    --ring: 280 80% 60%;
+  }
+
+  .theme-claude {
+    --background: 30 10% 11%;
+    --foreground: 35 30% 96%;
+    --card: 30 10% 11%;
+    --card-foreground: 35 30% 96%;
+    --popover: 30 10% 11%;
+    --popover-foreground: 35 30% 96%;
+    --primary: 25 80% 55%;
+    --primary-foreground: 30 10% 11%;
+    --secondary: 30 10% 16%;
+    --secondary-foreground: 35 30% 96%;
+    --muted: 30 10% 16%;
+    --muted-foreground: 30 10% 60%;
+    --accent: 30 10% 20%;
+    --accent-foreground: 35 30% 96%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 30 10% 20%;
+    --input: 30 10% 20%;
+    --ring: 25 80% 55%;
+  }
 }
 
 /* Swapy handle visibility and drag styling */
