@@ -1,39 +1,38 @@
-# UptimeKit 🚀
+# UptimeKit
 
-A simple uptime monitoring dashboard to keep track of your websites and APIs. Get real-time updates, beautiful charts, and know exactly when something goes down.
+A robust uptime monitoring solution designed for tracking the availability and performance of web services and APIs. UptimeKit provides real-time monitoring, detailed performance analytics, and immediate status alerts through a streamlined dashboard.
 
-## Preview 
+## Preview
 
 ![UptimeKit Dashboard](./screenshots/preview.png)
 
-## Features ✨
+## Key Features
 
-- Real-time monitoring - checks every minute
-- Multiple monitor types: **HTTP/HTTPS**, **DNS**, **ICMP Ping**
-- Drag & Drop Reordering - Organize your monitors exactly how you want
-- Individual charts for each monitor
-- Track response times (avg, min, max)
-- Beautiful dark/light mode with **multiple themes** (Midnight, Forest, Cosmic, Claude)
-- Mobile responsive - works everywhere
-- Edit or delete monitors anytime
-- Pause monitoring without losing data
-- See exactly when something goes down
-- Auto-refreshes every 30 seconds
+- **Real-time Monitoring**: Automated health checks performed at one-minute intervals.
+- **Protocol Support**: Comprehensive monitoring for **HTTP/HTTPS**, **DNS**, and **ICMP Ping**.
+- **Dynamic Organization**: Drag-and-drop interface for customized monitor prioritization.
+- **Performance Analytics**: Individual historical charts for each monitor tracking response times (average, minimum, and maximum).
+- **Theming System**: High-quality design with multiple themes including Midnight, Forest, Cosmic, and Claude.
+- **Responsive Interface**: Optimized for both desktop and mobile environments.
+- **Management Tools**: Comprehensive CRUD operations for monitors, including the ability to pause tracking without data loss.
+- **Live Updates**: Automatic dashboard synchronization every 30 seconds.
 
-## Status Colors
+## Status Indicators
 
-- 🟢 **Operational** - Response time < 1000ms
-- 🟡 **Degraded** - Response time 1000-5000ms
-- 🔴 **Down** - Service unavailable or response time > 5000ms
+UptimeKit uses a standardized color-coding system to represent service health:
 
-## Getting Started 🎯
+- 🟢 **Operational**: Response time is below 1000ms.
+- 🟡 **Degraded**: Response time is between 1000ms and 5000ms.
+- 🔴 **Down**: Service is unreachable or response time exceeds 5000ms.
 
-### Docker Setup (Recommended) 🐳
+## Installation and Setup
 
-The easiest way to get UptimeKit running is with Docker and Docker Compose!
+### Docker Deployment (Recommended)
+
+The most efficient method to deploy UptimeKit is using Docker and Docker Compose.
 
 **Prerequisites:**
-- Docker & Docker Compose installed
+- Docker and Docker Compose
 
 **Quick Start:**
 
@@ -42,40 +41,38 @@ The easiest way to get UptimeKit running is with Docker and Docker Compose!
 git clone https://github.com/abhixdd/UptimeKit.git
 cd UptimeKit
 
-# Build and start the full stack
+# Build and initiate the stack
 docker-compose up --build
 ```
 
-**Access the application:**
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:3000`
+**Access Points:**
+- **Frontend Dashboard**: `http://localhost:5173`
+- **Backend API**: `http://localhost:3000`
 
-**Stop the application:**
+**Operational Commands:**
 
 ```bash
+# Stop the infrastructure
 docker-compose down
-```
 
-**Remove all data and start fresh:**
-
-```bash
+# Reset environment (removes volumes)
 docker-compose down -v
 ```
 
-**How Docker setup works:**
-- **Backend container**: Node.js Alpine image running Express server on port 3000
-- **Frontend container**: Multi-stage build with Node/Vite for building, nginx for serving on port 5173
-- **Database**: SQLite database persists in a Docker volume (`backend-data`)
-- **Networking**: Services communicate via Docker internal network
+**Architecture Overview:**
+- **Backend**: Node.js Alpine environment running an Express server.
+- **Frontend**: Multi-stage build (Vite/Nginx) for optimized asset delivery.
+- **Database**: SQLite database persisted via Docker volumes.
+- **Networking**: Isolated communication through a dedicated Docker bridge network.
 
 ---
 
-### Node.js Setup
+### Manual Installation
 
-For running UptimeKit with Node.js (without Docker), follow these steps.
+For environments where Docker is not available, UptimeKit can be installed directly via Node.js.
 
 **Prerequisites:**
-- Node.js (v14 or higher)
+- Node.js (v14+)
 - npm or yarn
 
 **Installation:**
@@ -85,65 +82,57 @@ For running UptimeKit with Node.js (without Docker), follow these steps.
 git clone https://github.com/abhixdd/UptimeKit.git
 cd UptimeKit
 
-# Install all dependencies (root, backend, frontend)
+# Install all dependencies
 npm run install:all
 ```
 
-**Running the Application:**
+**Development Environment:**
 
 ```bash
 npm run dev
 ```
 
-This runs both the backend (port 3000) and the frontend dev server concurrently (port 5173).
+This command initializes both the backend and frontend development servers concurrently. Access the dashboard at `http://localhost:5173`.
 
-Open browser: `http://localhost:5173`
-
-**Optional:** Create a `.env` file in the `backend` folder (copy from `.env.example`) to customize the port or other settings.
+**Configuration:** Documentation for environment variables can be found in `backend/.env.example`.
 
 ---
 
-## API Endpoints 📡
+## API Reference
 
-- `GET /api/monitors` - Get all monitors
-- `POST /api/monitors` - Create monitor
-- `PUT /api/monitors/:id` - Update monitor
-- `DELETE /api/monitors/:id` - Delete monitor
-- `PATCH /api/monitors/:id/pause` - Toggle pause
-- `GET /api/monitors/:id/chart/uptime` - Uptime chart data
-- `GET /api/monitors/:id/chart/response-time` - Response time chart data
-- `GET /api/monitors/:id/history` - Last 30 checks
-- `GET /api/monitors/:id/downtime` - Latest downtime period info
+The backend exposes the following RESTful endpoints:
 
-## Usage 📖
+- `GET /api/monitors` - Retrieve all configured monitors
+- `POST /api/monitors` - Create a new monitor
+- `PUT /api/monitors/:id` - Update existing monitor configuration
+- `DELETE /api/monitors/:id` - Remove a monitor
+- `PATCH /api/monitors/:id/pause` - Toggle monitoring status
+- `GET /api/monitors/:id/chart/uptime` - Fetch uptime historical data
+- `GET /api/monitors/:id/chart/response-time` - Fetch response time metrics
+- `GET /api/monitors/:id/history` - Retrieve recent check logs
+- `GET /api/monitors/:id/downtime` - Detailed information on the most recent outage
 
-1. Click "Add Monitor" to add a new website/API to monitor
-2. Choose monitor type:
-   - **HTTP/HTTPS**: Check website availability and response time
-   - **DNS**: Verify DNS resolution
-   - **ICMP Ping**: Test connectivity via ping
-3. Enter a name and URL (e.g., https://example.com)
-4. Monitor status updates automatically every minute
-5. View charts, pause, edit, or delete monitors from the menu
+## User Guide
 
-## Contributing 🤝
+1. **Adding Monitors**: Utilize the "Add Monitor" interface to register a new service.
+2. **Configuration**: 
+   - **HTTP/HTTPS**: Monitor web application availability.
+   - **DNS**: Validate domain name resolution.
+   - **ICMP Ping**: Verify network-level connectivity.
+3. **Observation**: Status updates are pushed to the dashboard automatically. Use the monitor-specific menus to access detailed charts or modify configurations.
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Contributing
 
-## License 📄
+Contributions to UptimeKit are encouraged. Please review the codebase and submit pull requests for any improvements or bug fixes.
+
+## Support
+
+For technical issues or feature requests, please utilize the [GitHub Issues](https://github.com/abhixdd/UptimeKit/issues) tracker.
+
+## License
 
 This project is licensed under the MIT License.
 
-## Support 💬
-
-If you encounter any issues, please open an issue on GitHub: [GitHub Issues](https://github.com/abhixdd/UptimeKit/issues)
-
-## Author 👨‍💻
-
-**Abhi** - [GitHub Profile](https://github.com/abhixdd)
-
 ---
 
-**Made with ❤️ for monitoring enthusiasts**
-
-Star ⭐ the repository if you find it helpful!
+**UptimeKit** - Professional Monitoring Solutions.
